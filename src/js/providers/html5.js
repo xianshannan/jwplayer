@@ -125,7 +125,7 @@ define([
 
         this.isSDK = _isSDK;
         this.video = _videotag;
-        this.supportsPlaybackRate = true;
+        this.supportsPlaybackRate = ('playbackRate' in _videotag);
 
         _setupListeners(_mediaEvents, _videotag);
 
@@ -919,12 +919,19 @@ define([
         };
 
         this.setPlaybackRate = function(playbackRate) {
+            if (!this.supportsPlaybackRate && playbackRate !== 1) {
+                return;
+            }
             // Set defaultPlaybackRate so that we do not send ratechange events when setting src
             _videotag.playbackRate = _videotag.defaultPlaybackRate = playbackRate;
         };
 
         this.getPlaybackRate = function() {
-            return _videotag.playbackRate;
+            // playbackRate should never be 0 or undefined. By default it should return 1.
+            if (this.supportsPlaybackRate) {
+                return _videotag.playbackRate;
+            }
+            return 1;
         };
 
         this.getCurrentQuality = function() {

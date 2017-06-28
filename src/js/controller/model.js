@@ -408,11 +408,11 @@ define([
                 return;
             }
 
-            // Clamp the rate between 0.25x and 4x
-            playbackRate = utils.between(playbackRate, 0.25, 4);
-
             if (this.get('streamType') === 'LIVE') {
                 playbackRate = 1;
+            } else {
+                // Clamp the rate between 0.25x and 4x
+                playbackRate = utils.between(playbackRate, 0.25, 4);
             }
 
             this.set('defaultPlaybackRate', playbackRate);
