@@ -132,8 +132,11 @@ const multiConfig = [
                     }
                 },
                 {
-                    test: /\.svg$/,
-                    loader: 'svg-inline-loader'
+                    test: /\.svg/,
+                    use: {
+                        loader: 'svg-url-loader',
+                        options: {}
+                    }
                 }
             ]
         }
