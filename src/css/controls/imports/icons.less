@@ -1,24 +1,5 @@
 @import "../../shared-imports/mixins";
 
-/*** When not base64 encoded, fallbacks will work so that we won't load both fonts if we don't have to ***/
-/*** TTF is used for support for some older version of Android Stock (4.3 and less) ***/
-@font-face {
-    font-family: "jw-icons";
-    src: url("../../../../assets/fonts/jw-icons.woff") format("woff"), url("../../../../assets/fonts/jw-icons.ttf") format("truetype");
-}
-
-.jw-icon {
-    font-family: "jw-icons";
-    font-style: normal;
-    font-weight: normal;
-    text-transform: none;
-    background-color: transparent;
-    font-variant: normal;
-    /* font-smoothing is a private setting not transformed by PostCSS */
-    -webkit-font-smoothing: antialiased;
-    /* OSX Firefox specific style for improving legibility */
-    -moz-osx-font-smoothing: grayscale;
-}
 
 /*** ICONS ***/
 .jw-icon-audio-tracks {
@@ -58,6 +39,12 @@
 .jw-icon-fullscreen {
     &:before {
         content: "\e608";
+        background: url("../../../assets/SVGs/fullscreen.svg");
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-size: contain;
+                text-indent: -999em;
+                text-align: center;
     }
 
     &.jw-off:before {
@@ -83,20 +70,49 @@
     }
 }
 
+//.jw-icon-pause {
+//    &:before {
+//        content: "\e60d";
+//        background: url("../../../assets/SVGs/pause.svg");
+//        background-repeat: no-repeat;
+//        background-position: center center;
+//        background-size: contain;
+//        text-indent: -999em;
+//        text-align: center;
+//    }
+//}
+
 .jw-icon-pause {
-    &:before {
-        content: "\e60d";
-    }
+    background-image: url("../../../assets/SVGs/pause.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
 }
 
 .jw-icon-play {
-    &:before {
-        //content: "\e60e";
-        //background: url("../../../assets/SVGs/live.svg");
-        //background-image: url("../../../assets/SVGs/live.svg");
-        content: url("../../../assets/SVGs/live.svg");
-    }
+    background-image: url("../../../assets/SVGs/play.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
 }
+
+//.jw-icon-play {
+//    &:before {
+//        //content: "\e60e";
+//        //background: url("../../../assets/SVGs/live.svg");
+        //background-image: url("../../../assets/SVGs/live.svg");
+        //content: url("../../../assets/SVGs/live.svg");
+
+//        content: "\e60e";
+        //background-image: url("../../../assets/SVGs/play.svg");
+//background: url("../../../assets/SVGs/play.svg");
+//        background-repeat: no-repeat;
+//        background-position: center center;
+//        background-size: contain;
+//        text-indent: -999em;
+        //text-align: center;
+//    }
+//}
 
 .jw-icon-replay {
     &:before {
@@ -121,8 +137,8 @@
 }
 
 .jw-icon-rewind {
-    &:before {
-        content: "\e900";
-        font-size: 24px;
-    }
+    background-image: url("../../../assets/SVGs/rewind-10.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
 }
