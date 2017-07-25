@@ -1,12 +1,17 @@
 @import "../../shared-imports/mixins";
 
 .jw-icon {
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
-    vertical-align: middle;
-    horizontal-align: middle;
     fill: #FF0000;
+    font-family: "jw-icons";
+    font-style: normal;
+    font-weight: normal;
+    text-transform: none;
+    background-color: transparent;
+    font-variant: normal;
+    /* font-smoothing is a private setting not transformed by PostCSS */
+    -webkit-font-smoothing: antialiased;
+    /* OSX Firefox specific style for improving legibility */
+     -moz-osx-font-smoothing: grayscale;
 }
 
 /*** ICONS ***/
@@ -65,11 +70,9 @@
 }
 
 .jw-icon-pause {
-    background-image: url("../../../assets/SVGs/pause.svg");
 }
 
 .jw-icon-play {
-    background-image: url("../../../assets/SVGs/play.svg");
 }
 
 .jw-icon-replay {
