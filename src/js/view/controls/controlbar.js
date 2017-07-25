@@ -1,4 +1,4 @@
-import { PLAYBACK_RATE_ICON } from 'assets/svg-markup';
+import { PLAYBACK_RATE_ICON, PLAY_ICON } from 'assets/svg-markup';
 import { Browser, OS } from 'environment/environment';
 import { dvrSeekLimit } from 'view/constants';
 
@@ -139,7 +139,7 @@ define([
 
             this.elements = {
                 alt: text('jw-text-alt', 'status'),
-                play: button('jw-icon-playback', () => { _api.play(null, reasonInteraction()); }, play),
+                play: button('jw-icon-playback', () => { _api.play(null, reasonInteraction()); }, play, PLAYBACK_RATE_ICON),
                 rewind: button('jw-icon-rewind', () => { this.rewind(); }, rewind),
                 next: nextButton,
                 elapsed: text('jw-text-elapsed', 'timer'),

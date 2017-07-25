@@ -2,7 +2,7 @@ define([
     'utils/ui'
 ], function(UI) {
 
-    return function (icon, apiAction, ariaText) {
+    return function (icon, apiAction, ariaText, svg) {
         const element = document.createElement('div');
         element.className = 'jw-icon jw-icon-inline jw-button-color jw-reset ' + icon;
         element.setAttribute('role', 'button');
@@ -19,6 +19,10 @@ define([
             new UI(element).on('click tap', function() {
                 apiAction();
             });
+        }
+
+        if (svg) {
+            element.innerHTML += svg;
         }
 
         return {
