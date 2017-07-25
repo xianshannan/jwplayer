@@ -52,7 +52,7 @@ display icons
     margin: 0 (@ui-padding * 0.5);
     border-radius: 3.5em;
 
-    .jw-icon {
+    .jw-icon { // karim
         cursor: pointer;
 
         // Default to .jw-breakpoint-2 to match pre 7.9 styles
@@ -66,7 +66,7 @@ display icons
         }
 
         &:before {
-            font-size: @mobile-touch-target * 0.75;
+            background-size: @mobile-touch-target * 0.75;
             position: relative;
         }
 
@@ -84,41 +84,41 @@ display icons
         display: none;
     }
 
-    .jw-display .jw-icon {
+    .jw-display .jw-icon { // karim
         height: @mobile-touch-target;
         line-height: @mobile-touch-target;
         width: @mobile-touch-target;
 
         &:before {
-            font-size: @mobile-touch-target * 0.5;
+            background-size: @mobile-touch-target * 0.5;
         }
     }
 }
 
 .jw-breakpoint-1 {
-    .jw-display .jw-icon {
+    .jw-display .jw-icon { // karim
         height: @mobile-touch-target * 1.25;
         line-height: @mobile-touch-target * 1.25;
         width: @mobile-touch-target * 1.25;
 
         &:before {
-            font-size: @mobile-touch-target * 0.5;
+            background-size: @mobile-touch-target * 0.5;
         }
 
         &.jw-icon-rewind:before {
-            font-size: @mobile-touch-target * 0.75;
+            background-size: @mobile-touch-target * 0.75;
         }
     }
 }
 
 .jw-breakpoint-3 {
-    .jw-display .jw-icon {
+    .jw-display .jw-icon { // karim
         height: @mobile-touch-target * 1.75;
         line-height: @mobile-touch-target * 1.75;
         width: @mobile-touch-target * 1.75;
 
         &:before {
-            font-size: @mobile-touch-target * 0.875;
+            background-size: @mobile-touch-target * 0.875;
         }
     }
 }
@@ -127,13 +127,13 @@ display icons
 .jw-breakpoint-5,
 .jw-breakpoint-6,
 .jw-breakpoint-7 {
-    .jw-display .jw-icon {
+    .jw-display .jw-icon { //karim
         height: @mobile-touch-target * 2;
         line-height: @mobile-touch-target * 2;
         width: @mobile-touch-target * 2;
 
         &:before {
-            font-size: @mobile-touch-target;
+            background-size: @mobile-touch-target;
         }
     }
 }

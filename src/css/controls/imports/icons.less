@@ -1,32 +1,36 @@
 @import "../../shared-imports/mixins";
 
+.jw-icon {
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    vertical-align: middle;
+    horizontal-align: middle;
+    fill: #FF0000;
+}
 
 /*** ICONS ***/
 .jw-icon-audio-tracks {
-    &:before {
-        content: "\e600";
-    }
+    background-image: url("../../../assets/SVGs/audio-tracks.svg");
 }
 
 .jw-icon-buffer {
-    &:before {
-        content: "\e601";
-    }
+    background-image: url("../../../assets/SVGs/buffer.svg");
 }
 
 .jw-icon-airplay {
-    &:before {
-        content: "\e901";
-    }
+    background-image: url("../../../assets/SVGs/airplay-on.svg");
 
-    &.jw-off:before {
-        content: "\e901";
+    &.jw-off {
+        background-image: url("../../../assets/SVGs/airplay-off.svg");
     }
 }
 
 .jw-icon-cc {
-    &:before {
-        content: "\e605";
+    background-image: url("../../../assets/SVGs/captions-on.svg");
+
+    &.jw-off {
+        background-image: url("../../../assets/SVGs/captions-off.svg");
     }
 }
 
@@ -38,9 +42,6 @@
 
 .jw-icon-fullscreen {
     background-image: url("../../../assets/SVGs/fullscreen.svg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
 
     &.jw-off {
         background-image: url("../../../assets/SVGs/fullscreen-not.svg");
@@ -61,36 +62,22 @@
 
 .jw-icon-next {
     background-image: url("../../../assets/SVGs/next.svg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
 }
 
 .jw-icon-pause {
     background-image: url("../../../assets/SVGs/pause.svg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
 }
 
 .jw-icon-play {
     background-image: url("../../../assets/SVGs/play.svg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
 }
 
 .jw-icon-replay {
-    &:before {
-        content: "\e610";
-    }
+    background-image: url("../../../assets/SVGs/replay.svg");
 }
 
 .jw-icon-volume {
     background-image: url("../../../assets/SVGs/volume-100.svg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
 
     &.jw-off {
         background-image: url("../../../assets/SVGs/volume-0.svg");
@@ -98,14 +85,9 @@
 }
 
 .jw-icon-close {
-    &:before {
-        content: "\e615";
-    }
+    background-image: url("../../../assets/SVGs/close.svg");
 }
 
 .jw-icon-rewind {
     background-image: url("../../../assets/SVGs/rewind-10.svg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
 }
