@@ -37,18 +37,13 @@
 }
 
 .jw-icon-fullscreen {
-    &:before {
-        content: "\e608";
-        background: url("../../../assets/SVGs/fullscreen.svg");
-                background-repeat: no-repeat;
-                background-position: center center;
-                background-size: contain;
-                text-indent: -999em;
-                text-align: center;
-    }
+    background-image: url("../../../assets/SVGs/fullscreen.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
 
-    &.jw-off:before {
-        content: "\e613";
+    &.jw-off {
+        background-image: url("../../../assets/SVGs/fullscreen-not.svg");
     }
 }
 
@@ -65,22 +60,11 @@
 }
 
 .jw-icon-next {
-    &:before {
-        content: "\e60c";
-    }
+    background-image: url("../../../assets/SVGs/next.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
 }
-
-//.jw-icon-pause {
-//    &:before {
-//        content: "\e60d";
-//        background: url("../../../assets/SVGs/pause.svg");
-//        background-repeat: no-repeat;
-//        background-position: center center;
-//        background-size: contain;
-//        text-indent: -999em;
-//        text-align: center;
-//    }
-//}
 
 .jw-icon-pause {
     background-image: url("../../../assets/SVGs/pause.svg");
@@ -96,24 +80,6 @@
     background-size: contain;
 }
 
-//.jw-icon-play {
-//    &:before {
-//        //content: "\e60e";
-//        //background: url("../../../assets/SVGs/live.svg");
-        //background-image: url("../../../assets/SVGs/live.svg");
-        //content: url("../../../assets/SVGs/live.svg");
-
-//        content: "\e60e";
-        //background-image: url("../../../assets/SVGs/play.svg");
-//background: url("../../../assets/SVGs/play.svg");
-//        background-repeat: no-repeat;
-//        background-position: center center;
-//        background-size: contain;
-//        text-indent: -999em;
-        //text-align: center;
-//    }
-//}
-
 .jw-icon-replay {
     &:before {
         content: "\e610";
@@ -121,12 +87,13 @@
 }
 
 .jw-icon-volume {
-    &:before {
-        content: "\e612";
-    }
+    background-image: url("../../../assets/SVGs/volume-100.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
 
-    &.jw-off:before {
-        content: "\e611";
+    &.jw-off {
+        background-image: url("../../../assets/SVGs/volume-0.svg");
     }
 }
 
