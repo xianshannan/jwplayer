@@ -139,8 +139,8 @@ define([
 
             this.elements = {
                 alt: text('jw-text-alt', 'status'),
-                play: button('jw-icon-playback', () => { _api.play(null, reasonInteraction()); }, play, PLAY_ICON),
-                rewind: button('jw-icon-rewind', () => { this.rewind(); }, rewind, PAUSE_ICON),
+                play: button('jw-icon-playback', () => { _api.play(null, reasonInteraction()); }, play, [PLAY_ICON]),
+                rewind: button('jw-icon-rewind', () => { this.rewind(); }, rewind, [PLAYBACK_RATE_ICON]),
                 next: nextButton,
                 elapsed: text('jw-text-elapsed', 'timer'),
                 countdown: text('jw-text-countdown', 'timer'),

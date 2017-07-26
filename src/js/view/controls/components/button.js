@@ -21,8 +21,10 @@ define([
             });
         }
 
-        if (svg) {
-            element.innerHTML += svg;
+        if (svg && svg.length > 0) {
+            for (var i = 0; i < svg.length; i++) {
+                element.innerHTML += svg[i];
+            }
         }
 
         return {
