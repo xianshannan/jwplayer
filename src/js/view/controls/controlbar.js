@@ -384,7 +384,7 @@ export default class Controlbar {
     }
 
     togglePlaybackRateControls(model) {
-        const showPlaybackRateControls =
+        const showPlaybackRateControls = model.getVideo() &&
             model.getVideo().supportsPlaybackRate &&
             model.get('streamType') !== 'LIVE' &&
             model.get('playbackRateControls').length > 1;

@@ -34,7 +34,7 @@ const Controller = function() {};
 Object.assign(Controller.prototype, {
     setup(config, _api, originalContainer, eventListeners, commandQueue) {
         const _this = this;
-        const _model = _this._model = new Model();
+        const _model = new Model();
 
         let _view;
         let _captions;
@@ -45,6 +45,7 @@ Object.assign(Controller.prototype, {
         let _interruptPlay;
         let _preloaded = false;
 
+        _this._model = _model;
         _this.originalContainer = _this.currentContainer = originalContainer;
         _this._events = eventListeners;
 
@@ -307,8 +308,6 @@ Object.assign(Controller.prototype, {
             _this.trigger('destroyPlugin', {});
             _stop(true);
 
-            _model.once('itemReady', _checkAutoStart);
-
             switch (typeof item) {
                 case 'string':
                     _loadPlaylist(item);
@@ -424,9 +423,6 @@ Object.assign(Controller.prototype, {
         }
 
         function _stop(internal) {
-            // Reset the autostart play
-            _model.off('itemReady', _checkAutoStart);
-
             const fromApi = !internal;
 
             _actionOnAttach = null;
@@ -637,7 +633,7 @@ Object.assign(Controller.prototype, {
 
         /** Used for the InStream API **/
         function _detachMedia() {
-            return _model.detachMedia();
+            _model.detachMedia();
         }
 
         function _attachMedia() {

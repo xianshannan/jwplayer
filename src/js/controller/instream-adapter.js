@@ -76,10 +76,6 @@ var InstreamAdapter = function(_controller, _model, _view) {
         _oldProvider = _model.getVideo();
         _oldpos = _model.get('position');
         _olditem = _model.get('playlist')[_model.get('item')];
-        // Reset playback rate to 1 in case we reuse the video tag used to play back ad content
-        if (_oldProvider) {
-            _oldProvider.setPlaybackRate(1);
-        }
 
         _instream.on('all', _instreamForward, this);
         _instream.on(MEDIA_TIME, _instreamTime, this);
@@ -88,6 +84,16 @@ var InstreamAdapter = function(_controller, _model, _view) {
 
         // Make sure the original player's provider stops broadcasting events (pseudo-lock...)
         _controller.detachMedia();
+
+        // Reset playback rate to 1 in case we reuse the video tag used to play back ad content
+        // If the player's currently playing, pause the video tag
+        if (_oldProvider) {
+            _oldProvider.setPlaybackRate(1);
+            var currState = _model.get('state');
+            if (!sharedVideoTag && (currState === STATE_PLAYING || currState === STATE_BUFFERING)) {
+                _oldProvider.pause();
+            }
+        }
 
         _model.mediaModel.set('state', STATE_BUFFERING);
 
@@ -101,11 +107,7 @@ var InstreamAdapter = function(_controller, _model, _view) {
             _model.set('preInstreamState', 'instream-midroll');
         }
 
-        // If the player's currently playing, pause the video tag
-        var currState = _model.get('state');
-        if (!sharedVideoTag && (currState === STATE_PLAYING || currState === STATE_BUFFERING)) {
-            _oldProvider.pause();
-        }
+
 
         // Show instream state instead of normal player state
         _view.setupInstream(_instream._adModel);

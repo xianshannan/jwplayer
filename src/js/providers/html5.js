@@ -741,7 +741,6 @@ function VideoProvider(_playerId, _playerConfig) {
         this.removeTracksListener(_videotag.textTracks, 'change', this.textTrackChangeHandler);
         // Prevent tracks from showing during ad playback
         this.disableTextTrack();
-        return _videotag;
     };
 
     /**

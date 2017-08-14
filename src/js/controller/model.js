@@ -243,8 +243,10 @@ const Model = function() {
 
     this.detachMedia = function() {
         _attached = false;
-        _provider.off('all', _videoEventHandler, this);
-        return _provider.detachMedia();
+        if (_provider) {
+            _provider.off('all', _videoEventHandler, this);
+            _provider.detachMedia();
+        }
     };
 
     this.attachMedia = function() {
