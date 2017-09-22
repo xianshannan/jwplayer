@@ -2,8 +2,9 @@ define([
     'test/underscore',
     'jquery',
     'utils/helpers',
-    'api/api'
-], function (_, $, utils, Api) {
+    'api/api',
+    'mock/video-element-polyfill'
+], function (_, $, utils, Api, videoPolyfill) {
 
     const tru = () => true;
     const fals = () => false;
@@ -54,6 +55,14 @@ define([
     }
 
     describe('api.getMute', function() {
+
+        beforeEach(function() {
+            videoPolyfill.install();
+        });
+
+        afterEach(function() {
+            videoPolyfill.uninstall();
+        });
 
         it('api.getMute() on mobile when autostart: true & mute: false', function (done) {
             assertMuteState(assert, true, false, true, done);

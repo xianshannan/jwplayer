@@ -366,12 +366,18 @@ define([
             return container;
         }
         function createWithVideoContainer(id) {
-            var container = $('<div id="' + id + '"><video id="custom-video"></video></div>')[0];
+            var video = document.createElement('video');
+            video.id = 'custom-video';
+            var container = $('<div id="' + id + '"></div>')[0];
+            container.appendChild(video);
             return container;
         }
 
         function createWithAudioContainer(id) {
-            var container = $('<div id="' + id + '"><audio id="custom-audio"></audio></div>')[0];
+            var audio = document.createElement('audio');
+            audio.id = 'custom-audio';
+            var container = $('<div id="' + id + '"></div>')[0];
+            container.appendChild(audio);
             return container;
         }
     });

@@ -19,7 +19,7 @@ define([
         install: function() {
             if (createElementNative) {
                 document.createElement = function(name) {
-                    if (name === 'video') {
+                    if (name === 'video' || name === 'audio') {
                         return video;
                     }
                     return createElementNative.call(this, name);
