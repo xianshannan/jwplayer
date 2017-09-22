@@ -79,11 +79,13 @@ define([
             _olditem = _model.get('playlist')[_model.get('item')];
             // Reset playback rate to 1 in case we reuse the video tag used to play back ad content
             _oldProvider.setPlaybackRate(1);
+            
+            var mediaElement = sharedVideoTag || _model.get('mediaElement');
 
             _instream.on('all', _instreamForward, this);
             _instream.on(events.JWPLAYER_MEDIA_TIME, _instreamTime, this);
             _instream.on(events.JWPLAYER_MEDIA_COMPLETE, _instreamItemComplete, this);
-            _instream.init();
+            _instream.init(mediaElement);
 
             // Make sure the original player's provider stops broadcasting events (pseudo-lock...)
             _controller.detachMedia();
