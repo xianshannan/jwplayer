@@ -29,8 +29,7 @@ export function SettingsMenu(onVisibility, onSubmenuAdded, onMenuEmpty) {
             return;
         }
 
-        topbarElement.firstChild.focus();
-        evt.preventDefault();
+        instance.close();
     });
 
     topbarElement.appendChild(closeButton.element());
