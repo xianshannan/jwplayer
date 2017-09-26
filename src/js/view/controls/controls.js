@@ -22,25 +22,6 @@ const reasonInteraction = function() {
     return { reason: 'interaction' };
 };
 
-const keepActive = function(player) {
-    const focused = document.activeElement;
-
-    if (player === focused || !player.contains(focused)) {
-        return false;
-    }
-
-    // remove focus if button has an overlay
-    const buttonOverlays = ['jw-icon-volume', 'jw-icon-settings', 'jw-related-btn', 'jw-playlist-btn'];
-    for (let i = 0; i < buttonOverlays.length; i++) {
-        if (focused.classList.contains(buttonOverlays[i])) {
-            focused.blur();
-            break;
-        }
-    }
-
-    return true;
-};
-
 export default class Controls {
     constructor(context, playerContainer) {
         Object.assign(this, Events);
@@ -378,12 +359,16 @@ export default class Controls {
             return;
         }
 
-        if (keepActive(this.playerContainer)) {
+        const container = this.playerContainer;
+        const focused = document.activeElement;
+
+        if (container !== focused && container.contains(focused)) {
+            focused.blur();
             return;
         }
 
         this.showing = false;
-        utils.addClass(this.playerContainer, 'jw-flag-user-inactive');
+        utils.addClass(container, 'jw-flag-user-inactive');
 
         this.trigger('userInactive');
     }
