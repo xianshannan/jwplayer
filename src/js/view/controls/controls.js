@@ -30,9 +30,9 @@ const keepActive = function(player) {
     }
 
     // remove focus if button has an overlay
-    const hasOverlay = ['jw-icon-volume', 'jw-icon-settings', 'jw-related-btn', 'jw-playlist-btn'];
-    for (let i = 0; i < hasOverlay.length; i++) {
-        if (focused.classList.contains(hasOverlay[i])) {
+    const buttonOverlays = ['jw-icon-volume', 'jw-icon-settings', 'jw-related-btn', 'jw-playlist-btn'];
+    for (let i = 0; i < buttonOverlays.length; i++) {
+        if (focused.classList.contains(buttonOverlays[i])) {
             focused.blur();
             break;
         }
@@ -147,8 +147,8 @@ export default class Controls {
             this.userActive();
             lastState = state;
 
-            if (!visible) {
-                this.controlbar.elements.settingsButton.element().focus();
+            if (!visible && controlbar.elements && controlbar.elements.settingsButton) {
+                controlbar.elements.settingsButton.element().focus();
             }
         };
         const settingsMenu = this.settingsMenu = createSettingsMenu(controlbar, visibilityChangeHandler);

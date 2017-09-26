@@ -12,7 +12,8 @@ export default function SettingsSubmenu(name, categoryButton, isDefault) {
     categoryButtonElement.className += ' jw-submenu-' + name;
     categoryButton.show();
 
-    const nextSubmenu = function(evt) {
+    // return focus to topbar element when tabbing after the last item
+    const onLastItem = function(evt) {
         if (evt.keyCode !== 9) {
             return;
         }
@@ -34,7 +35,7 @@ export default function SettingsSubmenu(name, categoryButton, isDefault) {
             contentItems = items;
 
             const lastItem = contentItems[contentItems.length - 1];
-            lastItem.element().addEventListener('keydown', nextSubmenu);
+            lastItem.element().addEventListener('keydown', onLastItem);
         },
         replaceContent(items) {
             instance.removeContent();
@@ -42,7 +43,7 @@ export default function SettingsSubmenu(name, categoryButton, isDefault) {
         },
         removeContent() {
             const lastItem = contentItems[contentItems.length - 1];
-            lastItem.element().removeEventListener('keydown', nextSubmenu);
+            lastItem.element().removeEventListener('keydown', onLastItem);
 
             emptyElement(submenuElement);
             contentItems = [];
