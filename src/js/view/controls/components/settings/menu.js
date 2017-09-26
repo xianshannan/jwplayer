@@ -24,28 +24,50 @@ export function SettingsMenu(onVisibility, onSubmenuAdded, onMenuEmpty) {
         instance.close();
     }, 'Close Settings', [CLOSE_ICON]);
     closeButton.show();
+    closeButton.element().addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 9) {
+            return;
+        }
+
+        topbarElement.firstChild.focus();
+        evt.preventDefault();
+    });
+
     topbarElement.appendChild(closeButton.element());
-    settingsMenuElement.addEventListener('keydown', function(evt) {
+
+    const keyHandler = function(evt) {
         if (evt && evt.keyCode === 27) {
             instance.close();
             evt.stopPropagation();
         }
-    });
+    };
+
+    settingsMenuElement.addEventListener('keydown', keyHandler);
 
     const instance = {
-        open() {
+        open(isDefault) {
             visible = true;
             onVisibility(visible);
             settingsMenuElement.setAttribute('aria-expanded', 'true');
             addDocumentListeners(documentClickHandler);
             active.categoryButtonElement.focus();
+
+            if (isDefault) {
+                active.categoryButtonElement.focus();
+            } else {
+                active.element().children[0].focus();
+            }
+
         },
         close() {
             visible = false;
             onVisibility(visible);
+
             active = null;
             deactivateAllSubmenus(submenus);
+
             settingsMenuElement.setAttribute('aria-expanded', 'false');
+            settingsMenuElement.focus();
             removeDocumentListeners(documentClickHandler);
         },
         toggle() {
@@ -74,6 +96,7 @@ export function SettingsMenu(onVisibility, onSubmenuAdded, onMenuEmpty) {
             }
 
             settingsMenuElement.appendChild(submenu.element());
+
             onSubmenuAdded();
         },
         getSubmenu(name) {
@@ -99,6 +122,7 @@ export function SettingsMenu(onVisibility, onSubmenuAdded, onMenuEmpty) {
             if (!submenu || submenu.active) {
                 return;
             }
+
             deactivateAllSubmenus(submenus);
             submenu.activate();
             active = submenu;
@@ -112,6 +136,7 @@ export function SettingsMenu(onVisibility, onSubmenuAdded, onMenuEmpty) {
         },
         destroy() {
             this.close();
+            settingsMenuElement.removeEventListener('keydown', keyHandler);
             emptyElement(settingsMenuElement);
         }
     };
@@ -120,10 +145,6 @@ export function SettingsMenu(onVisibility, onSubmenuAdded, onMenuEmpty) {
         visible: {
             enumerable: true,
             get: () => visible
-        },
-        active: {
-            enumerable: true,
-            get: () => active
         },
     });
 

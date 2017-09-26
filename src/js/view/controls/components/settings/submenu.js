@@ -12,6 +12,16 @@ export default function SettingsSubmenu(name, categoryButton, isDefault) {
     categoryButtonElement.className += ' jw-submenu-' + name;
     categoryButton.show();
 
+    const nextSubmenu = function(evt) {
+        if (evt.keyCode !== 9) {
+            return;
+        }
+
+        if (categoryButtonElement) {
+            categoryButtonElement.focus();
+        }
+    };
+
     const instance = {
         addContent(items) {
             if (!items) {
@@ -20,13 +30,20 @@ export default function SettingsSubmenu(name, categoryButton, isDefault) {
             items.forEach(item => {
                 submenuElement.appendChild(item.element());
             });
+
             contentItems = items;
+
+            const lastItem = contentItems[contentItems.length - 1];
+            lastItem.element().addEventListener('keydown', nextSubmenu);
         },
         replaceContent(items) {
-            emptyElement(submenuElement);
+            instance.removeContent();
             this.addContent(items);
         },
         removeContent() {
+            const lastItem = contentItems[contentItems.length - 1];
+            lastItem.element().removeEventListener('keydown', nextSubmenu);
+
             emptyElement(submenuElement);
             contentItems = [];
         },

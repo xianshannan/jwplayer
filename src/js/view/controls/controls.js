@@ -22,6 +22,25 @@ const reasonInteraction = function() {
     return { reason: 'interaction' };
 };
 
+const keepActive = function(player) {
+    const focused = document.activeElement;
+
+    if (player === focused || !player.contains(focused)) {
+        return false;
+    }
+
+    // remove focus if button has an overlay
+    const hasOverlay = ['jw-icon-volume', 'jw-icon-settings', 'jw-related-btn', 'jw-playlist-btn'];
+    for (let i = 0; i < hasOverlay.length; i++) {
+        if (focused.classList.contains(hasOverlay[i])) {
+            focused.blur();
+            break;
+        }
+    }
+
+    return true;
+};
+
 export default class Controls {
     constructor(context, playerContainer) {
         Object.assign(this, Events);
@@ -127,6 +146,10 @@ export default class Controls {
             // Trigger userActive so that a dismissive click outside the player can hide the controlbar
             this.userActive();
             lastState = state;
+
+            if (!visible) {
+                this.controlbar.elements.settingsButton.element().focus();
+            }
         };
         const settingsMenu = this.settingsMenu = createSettingsMenu(controlbar, visibilityChangeHandler);
         setupSubmenuListeners(settingsMenu, controlbar, model, api);
@@ -355,8 +378,13 @@ export default class Controls {
             return;
         }
 
+        if (keepActive(this.playerContainer)) {
+            return;
+        }
+
         this.showing = false;
         utils.addClass(this.playerContainer, 'jw-flag-user-inactive');
+
         this.trigger('userInactive');
     }
 }
