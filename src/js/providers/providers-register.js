@@ -3,8 +3,12 @@ import ProvidersSupported from 'providers/providers-supported';
 import DefaultProvider from 'providers/default';
 import _ from 'utils/underscore';
 
-export default function registerProvider(provider) {
+export default function registerProvider(provider,hls) {
     var name = provider.getName().name;
+    //新增代码
+    if(hls) {
+      name = 'hlsjs';
+    }
 
     // Only register the provider if it isn't registered already.  This is an issue on pages with multiple embeds.
     if (ProvidersLoaded[name]) {

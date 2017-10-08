@@ -2,7 +2,7 @@ import Item from 'playlist/item';
 import ProvidersSupported from 'providers/providers-supported';
 import registerProvider from 'providers/providers-register';
 import { module as ControlsModule } from 'controller/controls-loader';
-import { resolved } from 'polyfills/promise';
+import Promise, { resolved } from 'polyfills/promise';
 
 let bundlePromise = null;
 
@@ -21,23 +21,43 @@ export function chunkLoadErrorHandler(/* error */) {
 }
 
 export function selectBundle(model) {
+    //新增hlsjs处理
+    let bunlde;
     const controls = model.get('controls');
     const polyfills = requiresPolyfills();
     const html5Provider = requiresProvider(model, 'html5');
+    const hlsjsProvider = requiresProvider(model, 'hlsjs');
 
     if (controls && polyfills && html5Provider) {
-        return loadControlsPolyfillHtml5Bundle();
+        bunlde = loadControlsPolyfillHtml5Bundle();
+    }else if (controls && html5Provider) {
+        bunlde = loadControlsHtml5Bundle();
+    }else if (controls && polyfills) {
+        bunlde = loadControlsPolyfillBundle();
+    }else if (controls) {
+        bunlde = loadControlsBundle();
+    }else {
+      bunlde = loadCore();
     }
-    if (controls && html5Provider) {
-        return loadControlsHtml5Bundle();
-    }
-    if (controls && polyfills) {
-        return loadControlsPolyfillBundle();
-    }
-    if (controls) {
-        return loadControlsBundle();
-    }
-    return loadCore();
+    return new Promise(function(resolve,reject){
+        bunlde.then(function(bun){
+            if(hlsjsProvider) {
+                require.ensure([
+                    'hls.js',
+                    'providers/html5'
+                ], function (require) {
+                    const hlsjs = require('hls.js');
+                    const h5Provider = require('providers/html5').default;
+                    h5Provider.prototype.hlsjs = hlsjs;
+                    registerProvider(h5Provider,true); 
+                    bun.prototype.hlsjs = hlsjs;
+                    resolve(bun);
+                }, chunkLoadErrorHandler, 'provider.hlsjs.js');
+            }else {
+                resolve(bun);
+            }
+        })
+    })
 }
 
 export function requiresPolyfills() {

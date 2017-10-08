@@ -20,7 +20,11 @@ Object.assign(ModelShim.prototype, SimpleModel);
 const CoreShim = function(originalContainer) {
     this._events = {};
     this.modelShim = new ModelShim();
+    //loading、play、pause等计时器
     this.modelShim._qoeItem = new Timer();
+    //对用户来说，配置的方式不是唯一的
+    //jwplayer设置适配，添加默认配置并适配成最终配置对象。
+    //配置设置处理
     this.setup = new Setup(this.modelShim);
     this.currentContainer =
         this.originalContainer = originalContainer;
@@ -64,6 +68,7 @@ Object.assign(CoreShim.prototype, {
     trigger: Events.trigger,
     init(options, api) {
         const model = this.modelShim;
+        //localStorage存储的一些用户设置值
         const storage = new Storage('jwplayer', [
             'volume',
             'mute',
@@ -82,10 +87,11 @@ Object.assign(CoreShim.prototype, {
         model.setProvider = function() {};
 
         // Create/get click-to-play media element, and call .load() to unblock user-gesture to play requirement
+        //video标签的dom
         const mediaElement =
             model.attributes.mediaElement = getMediaElement(this.originalContainer);
+        //重新载入视频
         mediaElement.load();
-
         return Promise.all([
             loadCoreBundle(model),
             this.setup.start(),
@@ -107,8 +113,9 @@ Object.assign(CoreShim.prototype, {
 
             // Assign CoreMixin.prototype (formerly controller) properties to this instance making api.core the controller
             Object.assign(this, CoreMixin.prototype);
-            this.setup(config, api, this.originalContainer, this._events, commandQueue);
 
+            //这里的setup覆盖了上面的this.setup，已经不一样了。
+            this.setup(config, api, this.originalContainer, this._events, commandQueue);
             const coreModel = this._model;
             storage.track(coreModel);
 

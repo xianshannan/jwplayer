@@ -5,7 +5,9 @@
   "repository": "git@github.com:jwplayer/jwplayer.git",
   "homepage": "https://github.com/jwplayer/jwplayer",
   "license": "CC-BY-NC-SA-3.0",
-  "dependencies": {},
+  "dependencies": {
+    "hls.js": "^0.8.4"
+  },
   "devDependencies": {
     "async": "2.5.0",
     "autoprefixer": "7.1.2",
@@ -65,9 +67,11 @@
     "svg-inline-loader": "0.8.0",
     "underscore": "1.8.3",
     "url-loader": "0.5.9",
-    "webpack": "3.5.2"
+    "webpack": "3.5.2",
+    "webpack-dev-server": "^2.9.1"
   },
   "scripts": {
+    "start": "webpack-dev-server -w --env.debug --port 8888 --output-public-path /bin-debug/",
     "docs": "jsdoc -c docs/jsdoc.conf.json",
     "lint": "npm run lint:js && npm run lint:styles",
     "lint:js": "eslint './src/js'",

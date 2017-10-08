@@ -48,12 +48,24 @@ const SupportsMatrix = [
             if (!mimeType) {
                 return false;
             }
-
             // Last, but not least, we ask the browser
             // (But only if it's a video with an extension known to work in HTML5)
             return !!video.canPlayType(mimeType);
         }
-    }
+    },
+    /**begin---新增代码**/
+    {
+        name: 'hlsjs',
+        supports: function (source) {
+            const file = source.file;
+            const type = source.type;
+            if(type === 'hls') {
+              return true;
+            }
+            return false;
+        }
+    } 
+    /**end---新增代码**/
 ];
 
 export default SupportsMatrix;

@@ -172,8 +172,8 @@ function VideoProvider(_playerId, _playerConfig) {
             return _videotag.duration === Infinity;
         }
     });
-
     const _videotag = _this.video = _playerConfig.mediaElement;
+
     const visualQuality = { level: {} };
     const _staleStreamDuration = 3 * 10 * 1000;
 
@@ -354,6 +354,15 @@ function VideoProvider(_playerId, _playerConfig) {
         var sourceChanged = (_videotag.src !== sourceElement.src);
         if (sourceChanged) {
             _videotag.src = source.file;
+        }
+        //hls 新增代码
+        if(_videotag && _this.hlsjs && _this.hlsjs.isSupported()) {
+            const hls = new _this.hlsjs();
+            hls.loadSource(_videotag.src);
+            hls.attachMedia(_videotag);
+            // hls.on(_this.hlsjs.Events.MEDIA_ATTACHED,function() {
+                //console.log('attached')
+            // }); 
         }
     }
 

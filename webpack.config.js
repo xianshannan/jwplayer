@@ -119,7 +119,15 @@ const multiConfig = [
                 {
                     test: /\.js$/,
                     loader: 'babel-loader',
-                    exclude: /node_modules/,
+                    exclude: [
+                      function(pathString) {
+                        if (~pathString.indexOf('webpack-dev-server/client')) {
+                          return false;
+                        } else if (~pathString.indexOf('/node_modules/')) {
+                          return true;
+                        }
+                      },
+                    ],
                     options: {
                         babelrc: false,
                         presets: [

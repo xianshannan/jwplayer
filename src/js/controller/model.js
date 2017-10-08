@@ -116,21 +116,26 @@ const Model = function() {
                 this.set('buffer', data.bufferPercent);
             /* falls through */
             case MEDIA_META: {
-                const duration = data.duration;
+                //this.duration 是从broken.mixin中赋值的。
+                const duration = this.duration || data.duration;
                 if (_.isNumber(duration) && !_.isNaN(duration)) {
                     mediaModel.set('duration', duration);
                     this.set('duration', duration);
+                    this.set('originalDuration', data.duration);
                 }
                 Object.assign(this.get('itemMeta'), data.metadata);
                 break;
             }
             case MEDIA_TIME: {
-                mediaModel.set('position', data.position);
-                this.set('position', data.position);
-                const duration = data.duration;
+                let position = data.position;
+                mediaModel.set('position', position);
+                this.set('position', position);
+                //this.duration 是从broken.mixin中赋值的。
+                const duration = this.duration || data.duration;
                 if (_.isNumber(duration) && !_.isNaN(duration)) {
                     mediaModel.set('duration', duration);
                     this.set('duration', duration);
+                    this.set('originalDuration', data.duration);
                 }
                 break;
             }
@@ -230,7 +235,6 @@ const Model = function() {
 
         // Mute the video if autostarting on mobile. Otherwise, honor the model's mute value
         _provider.mute(_this.autoStartOnMobile() || _this.get('mute'));
-
         _provider.on('all', _videoEventHandler, this);
 
         // Attempt setting the playback rate to be the user selected value

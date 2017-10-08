@@ -17,9 +17,9 @@ export default function Srt(data) {
         }
         // Parse each entry
         var entry = _entry(list[i]);
-        if (entry.text) {
+        // if (entry.text) {
             _captions.push(entry);
-        }
+        // }
     }
 
     return _captions;
@@ -37,15 +37,23 @@ function _entry(data) {
     if (array[0].indexOf(' --> ') > 0) {
         idx = 0;
     }
-    if (array.length > idx + 1 && array[idx + 1]) {
+    // if (array.length > idx + 1 && array[idx + 1]) {
+    if (array.length >= idx + 1 ) {
         // This line contains the start and end.
         var line = array[idx];
         var index = line.indexOf(' --> ');
         if (index > 0) {
-            entry.begin = seconds(line.substr(0, index));
-            entry.end = seconds(line.substr(index + 5));
-            // Remaining lines contain the text
-            entry.text = array.slice(idx + 1).join('\r\n');
+            if(/\d{4}-\d{2}-\d{2}/.test(line)) {
+              entry.begin = line.substr(0, index);
+              entry.end = line.substr(index + 5);
+            }else {
+              entry.begin = seconds(line.substr(0, index));
+              entry.end = seconds(line.substr(index + 5));
+            }
+            if(array[idx + 1]) {
+              // Remaining lines contain the text
+              entry.text = array.slice(idx + 1).join('\r\n');
+            }
         }
     }
     return entry;

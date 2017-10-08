@@ -84,7 +84,6 @@ function filterSources(sources, providers) {
     if (!providers || !providers.choose) {
         providers = new Providers();
     }
-
     const chosenProviderAndType = chooseProviderAndType(sources, providers);
     if (!chosenProviderAndType) {
         return [];

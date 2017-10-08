@@ -9,7 +9,9 @@ function createDomElement(html) {
     const element = createElement(html);
     const logoContainer = element.querySelector('.jw-rightclick-logo');
     if (logoContainer) {
-        logoContainer.append(cloneIcon('jwplayer-logo'));
+        //origin code logoContainer.append(cloneIcon('jwplayer-logo'));
+        //but safari is not supoort append
+        logoContainer.appendChild(cloneIcon('jwplayer-logo'));
     }
     return element;
 }

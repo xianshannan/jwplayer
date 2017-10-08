@@ -6,6 +6,7 @@ import Slider from 'view/controls/components/slider';
 import Tooltip from 'view/controls/components/tooltip';
 import ChaptersMixin from 'view/controls/components/chapters.mixin';
 import ThumbnailsMixin from 'view/controls/components/thumbnails.mixin';
+import BrokenMixin from 'view/controls/components/broken.mixin';
 
 class TimeTip extends Tooltip {
 
@@ -77,6 +78,7 @@ class TimeSlider extends Slider {
         this.timeTip.setup();
 
         this.cues = [];
+        this.brokenCues = [];
 
         // Store the attempted seek, until the previous one completes
         this.seekThrottled = _.throttle(this.performSeek, 400);
@@ -169,13 +171,17 @@ class TimeSlider extends Slider {
         var pct = 0;
         if (duration) {
             if (this.streamType === 'DVR') {
-                pct = (duration - position) / duration * 100;
+                pct = duration - position;
             } else if (this.streamType === 'VOD' || !this.streamType) {
                 // Default to VOD behavior if streamType isn't set
-                pct = position / duration * 100;
+                pct = position;
             }
         }
-        this.render(pct);
+
+        // var originalDuration = this._model.get('originalDuration') || 0;
+        // pct = pct / originalDuration * duration;
+        // console.log(originalDuration,duration)
+        this.dealWithBroken(pct);
     }
 
     onPlaylistItem(model, playlistItem) {
@@ -192,22 +198,53 @@ class TimeSlider extends Slider {
                 this.loadThumbnails(track.file);
             } else if (track && track.kind && track.kind.toLowerCase() === 'chapters') {
                 this.loadChapters(track.file);
+            } else if (track && track.kind && track.kind.toLowerCase() === 'broken') {
+                this.loadBroken(track.file);
             }
         }, this);
     }
-
+    dealWithBroken(position) {
+        const broken = this._model.broken; 
+        const duration = this._model.get('duration');
+        if(broken) {
+            var gapPosition = position + this.gaps || 0;
+            broken.forEach((v,k)=>{
+                if(gapPosition >= v.time && gapPosition < v.time + v.gap) {
+                    this.gaps = 0;
+                    for(var i = 0;i <= k; i++) {
+                        this.gaps += broken[i].gap;
+                    }
+                }
+            })
+        } 
+        var pct = (position + this.gaps) / duration * 100;
+        this.render(pct);
+    }
     performSeek() {
+        this.gaps = 0;
+        const broken = this._model.broken; 
         var percent = this.seekTo;
         var duration = this._model.get('duration');
+        var originalDuration = this._model.get('originalDuration') || 0;
         var position;
         if (duration === 0) {
             this._api.play(reasonInteraction());
         } else if (this.streamType === 'DVR') {
-            position = (100 - percent) / 100 * duration;
+            position = (100 - percent) / 100 * originalDuration;
             this._api.seek(position, reasonInteraction());
         } else {
             position = percent / 100 * duration;
-            this._api.seek(Math.min(position, duration - 0.25), reasonInteraction());
+            broken.forEach((v,k)=>{
+                if(position >= v.time) {
+                    this.gaps += v.gap;
+                }
+                if(position >= v.time && position < v.time + v.gap) {
+                    position = v.time + v.gap;
+                }
+            }) 
+            var realPosition = position - this.gaps || 0;
+            this.dealWithBroken(realPosition)
+            this._api.seek(Math.min(realPosition, originalDuration - 0.25), reasonInteraction());
         }
     }
 
@@ -241,8 +278,8 @@ class TimeSlider extends Slider {
                 return closeCue;
             }.bind(this), undefined);
         }
-
-        if (this.activeCue) {
+        //新增判断代码，this.activeCue.text
+        if (this.activeCue && this.activeCue.text) {
             timetipText = this.activeCue.text;
         } else {
             var allowNegativeTime = true;
@@ -282,13 +319,16 @@ class TimeSlider extends Slider {
     }
 
     reset() {
+        this.render(0);
+        this.gaps = 0;
         this.resetChapters();
         this.resetThumbnails();
+        this.resetBroken();
         this.timeTip.resetWidth();
         this.textLength = 0;
     }
 }
 
-Object.assign(TimeSlider.prototype, ChaptersMixin, ThumbnailsMixin);
+Object.assign(TimeSlider.prototype, ChaptersMixin, ThumbnailsMixin,BrokenMixin);
 
 export default TimeSlider;

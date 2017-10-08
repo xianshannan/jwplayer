@@ -14,13 +14,15 @@ export const Loaders = {
             registerProvider(provider);
             return provider;
         }, chunkLoadErrorHandler, 'provider.html5');
-    }
+    },
 };
 
 Object.assign(Providers.prototype, {
 
     load: function(providersToLoad) {
-        return Promise.all(providersToLoad.filter(provider => !!Loaders[provider.name]).map(provider => {
+        return Promise.all(providersToLoad.filter(provider => {
+          return !!Loaders[provider.name]
+        }).map(provider => {
             // Resolve event for unknown registered providers
             const providerLoaderMethod = Loaders[provider.name];
             return providerLoaderMethod();
