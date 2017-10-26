@@ -22,7 +22,7 @@
     "eslint-plugin-no-for-of-loops": "1.0.0",
     "esprima": "4.0.0",
     "file-loader": "0.11.2",
-    "grunt": "1.0.1",
+    "grunt": "^1.0.1",
     "grunt-cli": "1.2.0",
     "grunt-contrib-clean": "1.1.0",
     "grunt-contrib-connect": "1.0.2",
@@ -71,6 +71,7 @@
     "webpack-dev-server": "^2.9.1"
   },
   "scripts": {
+    "build": "grunt",
     "start": "webpack-dev-server -w --env.debug --port 8888 --output-public-path /bin-debug/",
     "docs": "jsdoc -c docs/jsdoc.conf.json",
     "lint": "npm run lint:js && npm run lint:styles",

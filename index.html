@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <script src="./bin-debug/jwplayer.js"></script>
+</head>
+<body>
+<div class="info">
+  <body>
+    <div id="streamroot"></div>
+    <script>
+      var query = {};
+      if(~location.href.indexOf('?')) {
+        location.href.split('?')[1].split('&').forEach(function(v){
+          var split = v.split('=');
+          query[split[0]] = split[1];
+        });
+      }
+      //参考这里的demo，整理出来的https://www.streamroot.io/demo/
+      //jwplayer.key = 'dtUZ5gcdkcfq2WnsdIl53C5vp3N0AvC3';
+      //jwplayer.key = 'iP+vLYU9H5KyhZeGt5eVuJJIoULUjltoaMeHXg==';
+      //jwplayer.key = "bAoNHra71KE/mHvb0sirT4HeWLTAkpiYa1mVsA==";
+
+      function init(file) {
+        var playerInstance = jwplayer('streamroot').setup(
+          {
+            autostart: true,
+            width: '100%',
+            file: "https://content.jwplatform.com/manifests/pVI22mfa.m3u8",
+            //file: "http://hls5.public.topvdn.cn/live/10000415/index.m3u8",
+            //file: "http://live.hkstv.hk.lxdns.com/live/hks/playlist.m3u8",
+            //file: "http://hls9.public.topvdn.cn/live/3000000159/index.m3u8",
+            //file: "/test.m4v",
+            /*tracks: [
+              {
+                kind: 'thumbnails',
+                file: '//content.jwplatform.com/strips/1b02B03R-120.vtt',
+              },
+              {
+                kind: 'broken',
+                file: '/chapters.txt',
+              },
+            ]*/
+          },
+          {
+            width: '100%',
+            autostart: true,
+            playlist: [
+              {
+                sources: [
+                  {
+                    file: '/test.m4v',
+                  },
+                ],
+                tracks: [
+                  {
+                    kind: 'thumbnails',
+                    file: '//content.jwplatform.com/strips/1b02B03R-120.vtt',
+                  },
+                ]
+              },
+              {
+                sources: [
+                  {
+                    file: '/test.mp4',
+                  },
+                ],
+              },
+            ],
+          }
+        );
+      }
+
+      init(query.url);
+    </script>
+  </body>
+</html>

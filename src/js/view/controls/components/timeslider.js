@@ -9,326 +9,368 @@ import ThumbnailsMixin from 'view/controls/components/thumbnails.mixin';
 import BrokenMixin from 'view/controls/components/broken.mixin';
 
 class TimeTip extends Tooltip {
+  setup() {
+    this.text = document.createElement('span');
+    this.text.className = 'jw-text jw-reset';
+    this.img = document.createElement('div');
+    this.img.className = 'jw-time-thumb jw-reset';
+    this.containerWidth = 0;
+    this.textLength = 0;
+    this.dragJustReleased = false;
 
-    setup() {
-        this.text = document.createElement('span');
-        this.text.className = 'jw-text jw-reset';
-        this.img = document.createElement('div');
-        this.img.className = 'jw-time-thumb jw-reset';
-        this.containerWidth = 0;
-        this.textLength = 0;
-        this.dragJustReleased = false;
+    var wrapper = document.createElement('div');
+    wrapper.className = 'jw-time-tip jw-reset';
+    wrapper.appendChild(this.img);
+    wrapper.appendChild(this.text);
 
-        var wrapper = document.createElement('div');
-        wrapper.className = 'jw-time-tip jw-reset';
-        wrapper.appendChild(this.img);
-        wrapper.appendChild(this.text);
+    this.addContent(wrapper);
+  }
 
-        this.addContent(wrapper);
+  image(style) {
+    utils.style(this.img, style);
+  }
+
+  update(txt) {
+    this.text.textContent = txt;
+  }
+
+  getWidth() {
+    if (!this.containerWidth) {
+      this.setWidth();
     }
 
-    image(style) {
-        utils.style(this.img, style);
+    return this.containerWidth;
+  }
+
+  setWidth(width) {
+    const tolerance = 16; // add a little padding so the tooltip isn't flush against the edge
+
+    if (width) {
+      this.containerWidth = width + tolerance;
+      return;
     }
 
-    update(txt) {
-        this.text.textContent = txt;
+    if (!this.container) {
+      return;
     }
 
-    getWidth () {
-        if (!this.containerWidth) {
-            this.setWidth();
-        }
+    this.containerWidth = utils.bounds(this.container).width + tolerance;
+  }
 
-        return this.containerWidth;
-    }
-
-    setWidth (width) {
-        const tolerance = 16; // add a little padding so the tooltip isn't flush against the edge
-
-        if (width) {
-            this.containerWidth = width + tolerance;
-            return;
-        }
-
-        if (!this.container) {
-            return;
-        }
-
-        this.containerWidth = utils.bounds(this.container).width + tolerance;
-    }
-
-    resetWidth () {
-        this.containerWidth = 0;
-    }
+  resetWidth() {
+    this.containerWidth = 0;
+  }
 }
 
 function reasonInteraction() {
-    return { reason: 'interaction' };
+  return { reason: 'interaction' };
 }
 
 class TimeSlider extends Slider {
-    constructor(_model, _api) {
-        super('jw-slider-time', 'horizontal');
+  constructor(_model, _api) {
+    super('jw-slider-time', 'horizontal');
 
-        this._model = _model;
-        this._api = _api;
+    this._model = _model;
+    this._api = _api;
 
-        this.timeTip = new TimeTip('jw-tooltip-time', null, true);
-        this.timeTip.setup();
+    this.timeTip = new TimeTip('jw-tooltip-time', null, true);
+    this.timeTip.setup();
 
-        this.cues = [];
-        this.brokenCues = [];
+    this.cues = [];
+    this.brokenCues = [];
 
-        // Store the attempted seek, until the previous one completes
-        this.seekThrottled = _.throttle(this.performSeek, 400);
-        this.mobileHoverDistance = 5;
+    // Store the attempted seek, until the previous one completes
+    this.seekThrottled = _.throttle(this.performSeek, 400);
+    this.mobileHoverDistance = 5;
 
-        this.setup();
+    this.setup();
+  }
+
+  // These overwrite Slider methods
+  setup() {
+    super.setup.apply(this, arguments);
+
+    this._model
+      .on('duration', this.onDuration, this)
+      .change('playlistItem', this.onPlaylistItem, this)
+      .change('position', this.onPosition, this)
+      .change('buffer', this.onBuffer, this)
+      .change('streamType', this.onStreamType, this);
+
+    this.elementRail.appendChild(this.timeTip.element());
+
+    // Show the tooltip on while dragging (touch) moving(mouse), or moving over(mouse)
+    this.elementUI = new UI(this.el, { useHover: true, useMove: true })
+      .on('drag move over', this.showTimeTooltip.bind(this), this)
+      .on('dragEnd out', this.hideTimeTooltip.bind(this), this);
+  }
+
+  limit(percent) {
+    if (this.activeCue && _.isNumber(this.activeCue.pct)) {
+      return this.activeCue.pct;
     }
-
-    // These overwrite Slider methods
-    setup() {
-        super.setup.apply(this, arguments);
-
-        this._model
-            .on('duration', this.onDuration, this)
-            .change('playlistItem', this.onPlaylistItem, this)
-            .change('position', this.onPosition, this)
-            .change('buffer', this.onBuffer, this)
-            .change('streamType', this.onStreamType, this);
-
-        this.elementRail.appendChild(this.timeTip.element());
-
-        // Show the tooltip on while dragging (touch) moving(mouse), or moving over(mouse)
-        this.elementUI = new UI(this.el, { useHover: true, useMove: true })
-            .on('drag move over', this.showTimeTooltip.bind(this), this)
-            .on('dragEnd out', this.hideTimeTooltip.bind(this), this);
+    var duration = this._model.get('duration');
+    if (this.streamType === 'DVR') {
+      var position = (1 - percent / 100) * duration;
+      var currentPosition = this._model.get('position');
+      var updatedPosition = Math.min(
+        position,
+        Math.max(dvrSeekLimit, currentPosition)
+      );
+      var updatedPercent = updatedPosition * 100 / duration;
+      return 100 - updatedPercent;
     }
+    return percent;
+  }
 
-    limit(percent) {
-        if (this.activeCue && _.isNumber(this.activeCue.pct)) {
-            return this.activeCue.pct;
+  update(percent) {
+    this.seekTo = percent;
+    this.seekThrottled();
+    super.update.apply(this, arguments);
+  }
+
+  dragStart() {
+    this._model.set('scrubbing', true);
+    super.dragStart.apply(this, arguments);
+  }
+
+  dragEnd() {
+    super.dragEnd.apply(this, arguments);
+    this._model.set('scrubbing', false);
+    this.dragJustReleased = true;
+  }
+
+  // Event Listeners
+  onSeeked() {
+    // When we are done scrubbing there will be a final seeked event
+    if (this._model.get('scrubbing')) {
+      this.performSeek();
+    }
+  }
+
+  onBuffer(model, pct) {
+    this.updateBuffer(pct);
+  }
+
+  onPosition(model, position) {
+    if (this.dragJustReleased) {
+      // prevents firing an outdated position and causing the timeslider to jump back and forth
+      this.dragJustReleased = false;
+      return;
+    }
+    this.updateTime(position, model.get('duration'));
+  }
+
+  onDuration(model, duration) {
+    this.updateTime(model.get('position'), duration);
+  }
+
+  onStreamType(model, streamType) {
+    this.streamType = streamType;
+  }
+
+  updateTime(position, duration) {
+    var pct = 0;
+    if (duration) {
+      if (this.streamType === 'DVR') {
+        pct = (duration - position) / duration * 100;
+      } else if (this.streamType === 'VOD' || !this.streamType) {
+        // Default to VOD behavior if streamType isn't set
+        pct = position / duration * 100;
+      }
+    }
+    this.renderByPercent(pct);
+  }
+
+  onPlaylistItem(model, playlistItem) {
+    if (!playlistItem) {
+      return;
+    }
+    this.reset();
+
+    model.mediaModel.on('seeked', this.onSeeked, this);
+
+    var tracks = playlistItem.tracks;
+    _.each(
+      tracks,
+      function(track) {
+        if (track && track.kind && track.kind.toLowerCase() === 'thumbnails') {
+          this.loadThumbnails(track.file);
+        } else if (
+          track &&
+          track.kind &&
+          track.kind.toLowerCase() === 'chapters'
+        ) {
+          this.loadChapters(track.file);
+        } else if (
+          track &&
+          track.kind &&
+          track.kind.toLowerCase() === 'broken'
+        ) {
+          this.loadBroken(track.file);
         }
-        var duration = this._model.get('duration');
-        if (this.streamType === 'DVR') {
-            var position = (1 - (percent / 100)) * duration;
-            var currentPosition = this._model.get('position');
-            var updatedPosition = Math.min(position, Math.max(dvrSeekLimit, currentPosition));
-            var updatedPercent = updatedPosition * 100 / duration;
-            return 100 - updatedPercent;
-        }
-        return percent;
-    }
-
-    update(percent) {
-        this.seekTo = percent;
-        this.seekThrottled();
-        super.update.apply(this, arguments);
-    }
-
-    dragStart() {
-        this._model.set('scrubbing', true);
-        super.dragStart.apply(this, arguments);
-    }
-
-    dragEnd() {
-        super.dragEnd.apply(this, arguments);
-        this._model.set('scrubbing', false);
-        this.dragJustReleased = true;
-    }
-
-    // Event Listeners
-    onSeeked () {
-        // When we are done scrubbing there will be a final seeked event
-        if (this._model.get('scrubbing')) {
-            this.performSeek();
-        }
-    }
-
-    onBuffer(model, pct) {
-        this.updateBuffer(pct);
-    }
-
-    onPosition(model, position) {
-        if (this.dragJustReleased) {
-            // prevents firing an outdated position and causing the timeslider to jump back and forth
-            this.dragJustReleased = false;
-            return;
-        }
-        this.updateTime(position, model.get('duration'));
-    }
-
-    onDuration(model, duration) {
-        this.updateTime(model.get('position'), duration);
-    }
-
-    onStreamType(model, streamType) {
-        this.streamType = streamType;
-    }
-
-    updateTime(position, duration) {
-        var pct = 0;
-        if (duration) {
-            if (this.streamType === 'DVR') {
-                pct = duration - position;
-            } else if (this.streamType === 'VOD' || !this.streamType) {
-                // Default to VOD behavior if streamType isn't set
-                pct = position;
-            }
-        }
-
-        // var originalDuration = this._model.get('originalDuration') || 0;
-        // pct = pct / originalDuration * duration;
-        // console.log(originalDuration,duration)
-        this.dealWithBroken(pct);
-    }
-
-    onPlaylistItem(model, playlistItem) {
-        if (!playlistItem) {
-            return;
-        }
-        this.reset();
-
-        model.mediaModel.on('seeked', this.onSeeked, this);
-
-        var tracks = playlistItem.tracks;
-        _.each(tracks, function (track) {
-            if (track && track.kind && track.kind.toLowerCase() === 'thumbnails') {
-                this.loadThumbnails(track.file);
-            } else if (track && track.kind && track.kind.toLowerCase() === 'chapters') {
-                this.loadChapters(track.file);
-            } else if (track && track.kind && track.kind.toLowerCase() === 'broken') {
-                this.loadBroken(track.file);
-            }
-        }, this);
-    }
-    dealWithBroken(position) {
-        const broken = this._model.broken; 
-        const duration = this._model.get('duration');
-        if(broken) {
-            var gapPosition = position + this.gaps || 0;
-            broken.forEach((v,k)=>{
-                if(gapPosition >= v.time && gapPosition < v.time + v.gap) {
-                    this.gaps = 0;
-                    for(var i = 0;i <= k; i++) {
-                        this.gaps += broken[i].gap;
-                    }
-                }
-            })
-        } 
-        var pct = (position + this.gaps) / duration * 100;
-        this.render(pct);
-    }
-    performSeek() {
+      },
+      this
+    );
+  }
+  //percent是之100份中占有的数量，最大为100
+  //返回vidoe的position
+  //如果是点击、拖拽、特殊处理
+  renderByPercent(percent, type) {
+    const broken = this._model.broken;
+    const duration = this._model.get('duration');
+    let position = percent / 100 * duration;
+    let videoPosition = position;
+    let pct = 0;
+    if (broken) {
+      if (type === 'click' || type === 'drag') {
         this.gaps = 0;
-        const broken = this._model.broken; 
-        var percent = this.seekTo;
-        var duration = this._model.get('duration');
-        var originalDuration = this._model.get('originalDuration') || 0;
-        var position;
-        if (duration === 0) {
-            this._api.play(reasonInteraction());
-        } else if (this.streamType === 'DVR') {
-            position = (100 - percent) / 100 * originalDuration;
-            this._api.seek(position, reasonInteraction());
-        } else {
-            position = percent / 100 * duration;
-            broken.forEach((v,k)=>{
-                if(position >= v.time) {
-                    this.gaps += v.gap;
-                }
-                if(position >= v.time && position < v.time + v.gap) {
-                    position = v.time + v.gap;
-                }
-            }) 
-            var realPosition = position - this.gaps || 0;
-            this.dealWithBroken(realPosition)
-            this._api.seek(Math.min(realPosition, originalDuration - 0.25), reasonInteraction());
+        //如果是点击、拖拽
+        broken.forEach(v => {
+          if (position >= v.time) {
+            this.gaps += v.gap;
+          }
+          if (position >= v.time && position < v.time + v.gap) {
+            position = v.time + v.gap;
+          }
+        });
+        videoPosition = position - this.gaps || 0;
+      }
+      const gapPosition = videoPosition + this.gaps || 0;
+      broken.forEach((v, k) => {
+        if (gapPosition >= v.time && gapPosition < v.time + v.gap) {
+          this.gaps = 0;
+          for (var i = 0; i <= k; i++) {
+            this.gaps += broken[i].gap;
+          }
         }
+      });
+    }
+    pct = (videoPosition + this.gaps) / duration * 100;
+    this._model.set('timelinePostion',pct);
+    this.render(pct);
+    return videoPosition;
+  }
+  performSeek() {
+    var percent = this.seekTo;
+    var duration = this._model.get('duration');
+    var originalDuration = this._model.get('originalDuration') || 0;
+    var position;
+    if (duration === 0) {
+      this._api.play(reasonInteraction());
+    } else if (this.streamType === 'DVR') {
+      position = (100 - percent) / 100 * originalDuration;
+      this._api.seek(position, reasonInteraction());
+    } else {
+      const videoPosition = this.renderByPercent(percent,'click');
+      this._api.seek(
+        Math.min(videoPosition, originalDuration - 0.25),
+        reasonInteraction()
+      );
+    }
+  }
+
+  showTimeTooltip(evt) {
+    var duration = this._model.get('duration');
+    if (duration === 0) {
+      return;
     }
 
-    showTimeTooltip(evt) {
-        var duration = this._model.get('duration');
-        if (duration === 0) {
-            return;
-        }
+    var playerWidth = this._model.get('containerWidth');
+    var railBounds = utils.bounds(this.elementRail);
+    var position = evt.pageX ? evt.pageX - railBounds.left : evt.x;
+    position = utils.between(position, 0, railBounds.width);
+    var pct = position / railBounds.width;
+    var time = duration * pct;
 
-        var playerWidth = this._model.get('containerWidth');
-        var railBounds = utils.bounds(this.elementRail);
-        var position = (evt.pageX ? (evt.pageX - railBounds.left) : evt.x);
-        position = utils.between(position, 0, railBounds.width);
-        var pct = position / railBounds.width;
-        var time = duration * pct;
-
-        // For DVR we need to swap it around
-        if (duration < 0) {
-            time = duration - time;
-        }
-
-        var timetipText;
-
-        // With touch events, we never will get the hover events on the cues that cause cues to be active.
-        // Therefore use the info we about the scroll position to detect if there is a nearby cue to be active.
-        if (UI.getPointerType(evt.sourceEvent) === 'touch') {
-            this.activeCue = _.reduce(this.cues, function(closeCue, cue) {
-                if (Math.abs(position - (parseInt(cue.pct) / 100 * railBounds.width)) < this.mobileHoverDistance) {
-                    return cue;
-                }
-                return closeCue;
-            }.bind(this), undefined);
-        }
-        //新增判断代码，this.activeCue.text
-        if (this.activeCue && this.activeCue.text) {
-            timetipText = this.activeCue.text;
-        } else {
-            var allowNegativeTime = true;
-            timetipText = utils.timeFormat(time, allowNegativeTime);
-
-            // If DVR and within live buffer
-            if (duration < 0 && time > dvrSeekLimit) {
-                timetipText = 'Live';
-            }
-        }
-        var timeTip = this.timeTip;
-
-        timeTip.update(timetipText);
-        if (this.textLength !== timetipText.length) {
-            // An activeCue may cause the width of the timeTip container to change
-            this.textLength = timetipText.length;
-            timeTip.resetWidth();
-        }
-        this.showThumbnail(time);
-
-        utils.addClass(timeTip.el, 'jw-open');
-
-        var timeTipWidth = timeTip.getWidth();
-        var widthPct = railBounds.width / 100;
-        var tolerance = playerWidth - railBounds.width;
-        var timeTipPct = 0;
-        if (timeTipWidth > tolerance) {
-            // timeTip may go outside the bounds of the player. Determine the % of tolerance needed
-            timeTipPct = (timeTipWidth - tolerance) / (2 * 100 * widthPct);
-        }
-        var safePct = Math.min(1 - timeTipPct, Math.max(timeTipPct, pct)).toFixed(3) * 100;
-        utils.style(timeTip.el, { left: safePct + '%' });
+    // For DVR we need to swap it around
+    if (duration < 0) {
+      time = duration - time;
     }
 
-    hideTimeTooltip() {
-        utils.removeClass(this.timeTip.el, 'jw-open');
-    }
+    var timetipText;
 
-    reset() {
-        this.render(0);
-        this.gaps = 0;
-        this.resetChapters();
-        this.resetThumbnails();
-        this.resetBroken();
-        this.timeTip.resetWidth();
-        this.textLength = 0;
+    // With touch events, we never will get the hover events on the cues that cause cues to be active.
+    // Therefore use the info we about the scroll position to detect if there is a nearby cue to be active.
+    if (UI.getPointerType(evt.sourceEvent) === 'touch') {
+      this.activeCue = _.reduce(
+        this.cues,
+        function(closeCue, cue) {
+          if (
+            Math.abs(position - parseInt(cue.pct) / 100 * railBounds.width) <
+            this.mobileHoverDistance
+          ) {
+            return cue;
+          }
+          return closeCue;
+        }.bind(this),
+        undefined
+      );
     }
+    // 新增判断代码，this.activeCue.text
+    if (this.activeCue && this.activeCue.text) {
+      timetipText = this.activeCue.text;
+    } else {
+      var allowNegativeTime = true;
+      // 使用历史录像broken
+      if (this.firstBegin) {
+        timetipText = utils.dateFormat(
+          new Date((this.firstBegin + time) * 1000),
+          'YYYY-MM-DD HH:mm:ss'
+        );
+      } else {
+        timetipText = utils.timeFormat(time, allowNegativeTime);
+      }
+
+      // If DVR and within live buffer
+      if (duration < 0 && time > dvrSeekLimit) {
+        timetipText = 'Live';
+      }
+    }
+    var timeTip = this.timeTip;
+    timeTip.update(timetipText);
+    if (this.textLength !== timetipText.length) {
+      // An activeCue may cause the width of the timeTip container to change
+      this.textLength = timetipText.length;
+      timeTip.resetWidth();
+    }
+    this.showThumbnail(time);
+
+    utils.addClass(timeTip.el, 'jw-open');
+
+    var timeTipWidth = timeTip.getWidth();
+    var widthPct = railBounds.width / 100;
+    var tolerance = playerWidth - railBounds.width;
+    var timeTipPct = 0;
+    if (timeTipWidth > tolerance) {
+      // timeTip may go outside the bounds of the player. Determine the % of tolerance needed
+      timeTipPct = (timeTipWidth - tolerance) / (2 * 100 * widthPct);
+    }
+    var safePct =
+      Math.min(1 - timeTipPct, Math.max(timeTipPct, pct)).toFixed(3) * 100;
+    utils.style(timeTip.el, { left: safePct + '%' });
+  }
+
+  hideTimeTooltip() {
+    utils.removeClass(this.timeTip.el, 'jw-open');
+  }
+
+  reset() {
+    this.render(0);
+    this.gaps = 0;
+    this.resetChapters();
+    this.resetThumbnails();
+    this.resetBroken();
+    this.timeTip.resetWidth();
+    this.textLength = 0;
+  }
 }
 
-Object.assign(TimeSlider.prototype, ChaptersMixin, ThumbnailsMixin,BrokenMixin);
+Object.assign(
+  TimeSlider.prototype,
+  ChaptersMixin,
+  ThumbnailsMixin,
+  BrokenMixin
+);
 
 export default TimeSlider;

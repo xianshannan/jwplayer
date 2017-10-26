@@ -116,10 +116,11 @@ const Model = function() {
                 this.set('buffer', data.bufferPercent);
             /* falls through */
             case MEDIA_META: {
-                //this.duration 是从broken.mixin中赋值的。
+                // this.duration 是从broken.mixin中赋值的。
                 const duration = this.duration || data.duration;
                 if (_.isNumber(duration) && !_.isNaN(duration)) {
                     mediaModel.set('duration', duration);
+                    mediaModel.set('originalDuration', data.duration);
                     this.set('duration', duration);
                     this.set('originalDuration', data.duration);
                 }
@@ -130,10 +131,11 @@ const Model = function() {
                 let position = data.position;
                 mediaModel.set('position', position);
                 this.set('position', position);
-                //this.duration 是从broken.mixin中赋值的。
+                // this.duration 是从broken.mixin中赋值的。
                 const duration = this.duration || data.duration;
                 if (_.isNumber(duration) && !_.isNaN(duration)) {
                     mediaModel.set('duration', duration);
+                    mediaModel.set('originalDuration', data.duration);
                     this.set('duration', duration);
                     this.set('originalDuration', data.duration);
                 }

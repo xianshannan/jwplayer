@@ -46,8 +46,8 @@ describe('Providers', function() {
         });
     });
 
-    it('should not choose a provider for hls and dash streams', function() {
-        const unsupportedSources = {
+    it('should choose a provider for hls', function() {
+        const supportedSources = {
             hls: {
                 file: 'http://playertest.longtailvideo.com/adaptive/bipbop/bipbopall.hls',
                 type: 'm3u8'
@@ -61,7 +61,19 @@ describe('Providers', function() {
                 file: 'http://playertest.longtailvideo.com/adaptive/bipbop/bipbopall.hls',
                 type: 'm3u8',
                 androidhls: false
-            },
+            }
+        };
+        const providers = new Providers();
+        let provider;
+
+        _.each(supportedSources, (src, type) => {
+            provider = providers.choose(Source(src));
+            expect(getName(provider), type).to.equal('hlsjs');
+        });
+    });
+
+    it('should not choose a provider dash streams', function() {
+        const unsupportedSources = {
             dash: { file: 'http//storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd' }
         };
         const providers = new Providers();
